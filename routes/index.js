@@ -44,6 +44,10 @@ let auth_token = '';
 //let spotifyApi = new SpotifyWebApi();
 //spotifyApi.setAccessToken(auth_token); //set access token
 
+/* GET home page. */
+router.get('/', function(req, res, next) {
+    res.render('index');
+
 let spotifyApi = new SpotifyWebApi({
   clientId: 'a88350ce46434eb69ef3df2cab4a940f',
   clientSecret: '16def6c1939b49e5bcab25cb5040c9fb',
