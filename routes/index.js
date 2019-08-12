@@ -47,33 +47,34 @@ let auth_token = '';
 /* GET home page. */
 router.get('/', function(req, res, next) {
     res.render('index');
+});
 
 let spotifyApi = new SpotifyWebApi({
-  clientId: 'a88350ce46434eb69ef3df2cab4a940f',
-  clientSecret: '16def6c1939b49e5bcab25cb5040c9fb',
-  redirectUri: 'http://localhost:3500',
+    clientId: 'a88350ce46434eb69ef3df2cab4a940f',
+    clientSecret: '16def6c1939b49e5bcab25cb5040c9fb',
+    redirectUri: 'http://localhost:3500',
 });
 
 spotifyApi.clientCredentialsGrant()
-    .then(function(data) {
-      console.log('The access token expires in ' + data.body['expires_in']);
-      console.log('The access token is ' + data.body['access_token']);
+    .then(function (data) {
+        console.log('The access token expires in ' + data.body['expires_in']);
+        console.log('The access token is ' + data.body['access_token']);
 
-      // Save the access token so that it's used in future calls
-      spotifyApi.setAccessToken(data.body['access_token']);
-      //auth_token = data.body['access_token'];
-    }, function(err) {
-      console.log('Something went wrong when retrieving an access token', err.message);
+        // Save the access token so that it's used in future calls
+        spotifyApi.setAccessToken(data.body['access_token']);
+        //auth_token = data.body['access_token'];
+    }, function (err) {
+        console.log('Something went wrong when retrieving an access token', err.message);
     });
 
 
 // Get Elvis' albums
 spotifyApi.getArtistAlbums('43ZHCT0cAZBISjO8DG9PnE').then(
-    function(data) {
-      console.log('Artist albums', data.body);
+    function (data) {
+        console.log('Artist albums', data.body);
     },
-    function(err) {
-      console.error(err);
+    function (err) {
+        console.error(err);
     }
 );
 
