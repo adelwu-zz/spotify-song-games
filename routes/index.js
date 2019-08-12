@@ -9,61 +9,96 @@ app = express()
 app.set('port', 3500);
 
 let auth_token = '';
+const client_id = 'a88350ce46434eb69ef3df2cab4a940f';
+const client_secret = '16def6c1939b49e5bcab25cb5040c9fb';
 
-app.get('/', function(req, resp) {
-  resp.header('Access-Control-Allow-Origin', '*');
-  resp.header('Access-Control-Allow-Headers', 'X-Requested-With');
+let spotifyApi = new SpotifyWebApi({
+    clientId: client_id,
+    clientSecret: client_secret,
+    redirectUri: "https://localhost:3500",
+});
 
-  var client_id = 'a88350ce46434eb69ef3df2cab4a940f';
-  var client_secret = '16def6c1939b49e5bcab25cb5040c9fb';
+/* GET home page. */
+app.get('/', function(req, res, next) {
+    res.sendFile(path.join(__dirname, '../views/index.html'));
+});
 
-  // your application requests authorization
-  var authOptions = {
-    url: 'https://accounts.spotify.com/api/token',
-    headers: {
-      Authorization:
-          'Basic ' +
-          new Buffer(client_id + ':' + client_secret).toString('base64')
-    },
-    form: {
-      grant_type: 'client_credentials'
-    },
-    json: true
-  };
+app.get('/callback', async (req,res) => {
+    const { code } = req.query;
+    console.log(code)
+    try {
+        var data = await spotifyApi.authorizationCodeGrant(code)
+        const { access_token, refresh_token } = data.body;
+        spotifyApi.setAccessToken(access_token);
+        spotifyApi.setRefreshToken(refresh_token);
 
-  request.post(authOptions, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
-      //resp.json({ token: body.access_token });
-      auth_token = body.access_token;
-      console.log(auth_token);
+        res.redirect('http://localhost:3500');
+    } catch(err) {
+        res.redirect('/#/error/invalid token');
     }
-  });
+});
 
-  var playlistTest = {
-      url: 'https://api.spotify.com/v1/playlists/43ZHCT0cAZBISjO8DG9PnE/tracks',
-      headers: {
-          Authorization:
-              'Bearer ' + auth_token
-      },
-      form: {
-          grant_type: 'client_credentials'
-      },
-      json: true
-  };
-
-  request.get(playlistTest, function(error, response, body) {
-      //resp.json({ tracks: body.tracks });
-      var tracks = body.tracks;
-      console.log(tracks);
-  });
-
-  resp.sendFile(path.join(__dirname, '../views/index.html'));
+app.get('/playlists', async (req,res) => {
+    try {
+        var result = await spotifyApi.getUserPlaylists();
+        console.log(result.body);
+        res.status(200).send(result.body);
+    } catch (err) {
+        res.status(400).send(err)
+    }
 
 });
 
-//let spotifyApi = new SpotifyWebApi();
-//spotifyApi.setAccessToken(auth_token); //set access token
 
+// app.get('/', function(req, resp) {
+//   resp.header('Access-Control-Allow-Origin', '*');
+//   resp.header('Access-Control-Allow-Headers', 'X-Requested-With');
+//
+//   // your application requests authorization
+//   let authOptions = {
+//     url: 'https://accounts.spotify.com/api/token',
+//     headers: {
+//       Authorization:
+//           'Basic ' +
+//           new Buffer(client_id + ':' + client_secret).toString('base64')
+//     },
+//     form: {
+//       grant_type: 'client_credentials'
+//     },
+//     json: true
+//   };
+//
+//   request.post(authOptions, function(error, response, body) {
+//     if (!error && response.statusCode === 200) {
+//       //resp.json({ token: body.access_token });
+//       auth_token = body.access_token;
+//       console.log(auth_token);
+//     }
+//   });
+//
+//   var playlistTest = {
+//       url: 'https://api.spotify.com/v1/playlists/43ZHCT0cAZBISjO8DG9PnE/tracks',
+//       headers: {
+//           Authorization:
+//               'Bearer ' + auth_token
+//       },
+//       form: {
+//           grant_type: 'client_credentials'
+//       },
+//       json: true
+//   };
+//
+//   request.get(playlistTest, function(error, response, body) {
+//       //resp.json({ tracks: body.tracks });
+//       var tracks = body.tracks;
+//       console.log(tracks);
+//   });
+//
+//   resp.sendFile(path.join(__dirname, '../views/index.html'));
+//
+// });
+
+////////////////////////////////////////////////////////////////////////////////////
 /* GET home page. */
 // router.get('/', function(req, res, next) {
 //     res.render('index');
