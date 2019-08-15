@@ -11,7 +11,16 @@ app.set('port', 3500);
 let auth_token = '';
 const client_id = 'a88350ce46434eb69ef3df2cab4a940f';
 const client_secret = '16def6c1939b49e5bcab25cb5040c9fb';
+let allTracks = [];
 
+class Track {
+    constructor(songName, uri) {
+        // all strings
+        this.songName = songName;
+        //this.artist = artist;
+        this.uri = uri;
+    }
+}
 
 app.get('/', function(req, resp) {
   resp.header('Access-Control-Allow-Origin', '*');
@@ -53,7 +62,15 @@ app.get('/', function(req, resp) {
         // Get Top US 50 Playlist
         spotifyApi.getPlaylist('37i9dQZEVXbLRQDuF5jeBp').then(
             function (data) {
-                console.log('Tracks here:', data.body);
+                let response = data.body;
+                let tracks = response.tracks.items;
+                tracks.forEach(item => {
+                    let uri = item.track.uri.split(":");
+                    uri = uri[2];
+                    let t = new Track(item.track.name, uri);
+                    allTracks.push(t);
+                });
+                console.log(allTracks);
             },
             function (err) {
                 console.error(err);
