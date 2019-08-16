@@ -3,7 +3,7 @@ const request = require('request');
 const router = express.Router();
 const SpotifyWebApi = require('spotify-web-api-node');
 const path = require("path");
-const Track = require('../utils/track');
+const Track = require('../models/track');
 
 app = express()
 
@@ -14,7 +14,6 @@ const client_id = 'a88350ce46434eb69ef3df2cab4a940f';
 const client_secret = '16def6c1939b49e5bcab25cb5040c9fb';
 
 
-
 app.get('/', function(req, resp) {
   resp.header('Access-Control-Allow-Origin', '*');
   resp.header('Access-Control-Allow-Headers', 'X-Requested-With');
@@ -22,7 +21,7 @@ app.get('/', function(req, resp) {
   //getTop50();
 
   //renders index file
-  resp.sendFile(path.join(__dirname, '../views/index.html'));
+  resp.sendFile(path.join(__dirname, '../public/index.html'));
 
 });
 
